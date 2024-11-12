@@ -41,18 +41,26 @@ jobs:
         run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
         continue-on-error: true
 
-      # Step 6: Run Composer update if install fails
+      # Step 6: Run Composer update if needed
       - name: Run Composer Update if Needed
         if: failure()
         run: composer update -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
 
-      # Step 7: Create database
+      # Step 7: Verify PHPUnit Installation
+      - name: Verify PHPUnit
+        run: |
+          if [ ! -f vendor/bin/phpunit ]; then
+            echo "PHPUnit is missing, running composer install again."
+            composer install --prefer-dist
+          fi
+
+      # Step 8: Create database
       - name: Create Database
         run: |
           mkdir -p data
           touch data/database.sqlite
 
-      # Step 8: Run PHPUnit tests
+      # Step 9: Run PHPUnit tests
       - name: Execute tests (Unit and Feature tests) via PHPUnit
         env:
           DATABASE_URL: sqlite:///%kernel.project_dir%/data/database.sqlite
