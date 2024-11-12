@@ -1,0 +1,59 @@
+name: Symfony
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+permissions:
+  contents: read
+
+jobs:
+  symfony-tests:
+    runs-on: ubuntu-latest
+    steps:
+      # Step 1: Set up PHP version
+      - name: Set up PHP
+        uses: shivammathur/setup-php@2cb9b829437ee246e9b3cac53555a39208ca6d28
+        with:
+          php-version: '8.0'
+
+      # Step 2: Check out the code
+      - uses: actions/checkout@v4
+
+      # Step 3: Copy .env.test.local if it doesn't exist
+      - name: Copy .env.test.local
+        run: php -r "file_exists('.env.test.local') || copy('.env.test', '.env.test.local');"
+
+      # Step 4: Cache Composer packages
+      - name: Cache Composer packages
+        id: composer-cache
+        uses: actions/cache@v3
+        with:
+          path: vendor
+          key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-php-
+
+      # Step 5: Try installing dependencies
+      - name: Install Dependencies
+        run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
+        continue-on-error: true
+
+      # Step 6: Run Composer update if install fails
+      - name: Run Composer Update if Needed
+        if: failure()
+        run: composer update -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
+
+      # Step 7: Create database
+      - name: Create Database
+        run: |
+          mkdir -p data
+          touch data/database.sqlite
+
+      # Step 8: Run PHPUnit tests
+      - name: Execute tests (Unit and Feature tests) via PHPUnit
+        env:
+          DATABASE_URL: sqlite:///%kernel.project_dir%/data/database.sqlite
+        run: vendor/bin/phpunit
