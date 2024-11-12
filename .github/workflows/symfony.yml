@@ -13,41 +13,22 @@ jobs:
   symfony-tests:
     runs-on: ubuntu-latest
     steps:
-      # Step 1: Set up PHP version
       - name: Set up PHP
         uses: shivammathur/setup-php@2cb9b829437ee246e9b3cac53555a39208ca6d28
         with:
-          php-version: '8.2'  # Updated to match composer.json requirements
-
-      # Step 2: Check out the code
+          php-version: '8.2'
       - uses: actions/checkout@v4
-
-      # Step 3: Copy .env.test.local if it doesn't exist
       - name: Copy .env.test.local
         run: php -r "file_exists('.env.test.local') || copy('.env.test', '.env.test.local');"
-
-      # Step 4: Cache Composer packages
-      - name: Cache Composer packages
-        id: composer-cache
-        uses: actions/cache@v3
-        with:
-          path: vendor
-          key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-php-
-
-      # Step 5: Install dependencies
+      # Skip caching temporarily to ensure a fresh install
       - name: Install Dependencies
-        run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
-
-      # Step 6: Create database
+        run: composer install --prefer-dist --no-interaction --no-scripts --no-progress
       - name: Create Database
         run: |
           mkdir -p data
           touch data/database.sqlite
-
-      # Step 7: Run PHPUnit tests
-      - name: Execute tests (Unit and Feature tests) via PHPUnit
+      - name: Run PHPUnit Tests
         env:
           DATABASE_URL: sqlite:///%kernel.project_dir%/data/database.sqlite
-        run: vendor/bin/phpunit
+        # Try default path first
+        run: vendor/bin/phpunit || ./vendor/phpunit/phpunit/phpunit
