@@ -1,0 +1,162 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block javascripts %}
+<script>
+    async function calculateShape(formId) {
+        const form = document.getElementById(formId);
+        const resultDiv = document.getElementById(formId + 'Result');
+        const submitBtn = form.querySelector('button[type="submit"]');
+        const loadingSpinner = form.querySelector('.spinner-border');
+        
+        submitBtn.disabled = true;
+        loadingSpinner.classList.remove('d-none');
+        
+        let url = '';
+        if (formId === 'circleForm') {
+            const radius = form.radius.value;
+            url = `/circle/${radius}`;
+        } else {
+            const a = form.sideA.value;
+            const b = form.sideB.value;
+            const c = form.sideC.value;
+            url = `/triangle/${a}/${b}/${c}`;
+        }
+
+        try {
+            const response = await fetch(url);
+            const data = await response.json();
+            
+            resultDiv.innerHTML = `
+                <div class="alert alert-success shadow-sm">
+                    <h4 class="alert-heading"><i class="fas fa-check-circle"></i> Results</h4>
+                    <div class="result-item">
+                        <i class="fas fa-vector-square"></i>
+                        <span>Surface: ${data.surface}</span>
+                    </div>
+                    <div class="result-item">
+                        <i class="fas fa-circle-notch"></i>
+                        <span>Circumference: ${data.circumference}</span>
+                    </div>
+                    ${data.radius ? `
+                        <div class="result-item">
+                            <i class="fas fa-arrows-alt-h"></i>
+                            <span>Radius: ${data.radius}</span>
+                        </div>
+                    ` : ''}
+                    ${data.a ? `
+                        <div class="result-item">
+                            <i class="fas fa-ruler-combined"></i>
+                            <span>Sides: ${data.a}, ${data.b}, ${data.c}</span>
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+        } catch (error) {
+            resultDiv.innerHTML = `
+                <div class="alert alert-danger shadow-sm">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    Error calculating shape properties: ${error.message}
+                </div>
+            `;
+        } finally {
+            submitBtn.disabled = false;
+            loadingSpinner.classList.add('d-none');
+        }
+    }
+</script>
+<style>
+    .result-item {
+        margin: 10px 0;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    .alert-success {
+        background-color: #d4edda;
+        border-color: #c3e6cb;
+    }
+    .alert-danger {
+        background-color: #f8d7da;
+        border-color: #f5c6cb;
+    }
+    .spinner-border {
+        width: 1rem;
+        height: 1rem;
+        margin-left: 8px;
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="container mt-5">
+    <h1 class="page-title">
+        <i class="fas fa-shapes"></i> {{ title }}
+    </h1>
+    
+    <div class="row g-4">
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h3 class="m-0"><i class="fas fa-circle calculator-icon"></i>Circle Calculator</h3>
+                </div>
+                <div class="card-body">
+                    <form id="circleForm" onsubmit="event.preventDefault(); calculateShape('circleForm');">
+                        <div class="mb-3">
+                            <label for="radius" class="form-label">
+                                <i class="fas fa-arrows-alt-h"></i> Radius
+                            </label>
+                            <input type="number" class="form-control" id="radius" name="radius" step="0.01" min="0" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">
+                            Calculate
+                            <span class="spinner-border d-none" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </span>
+                        </button>
+                    </form>
+                    <div id="circleFormResult" class="mt-4"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h3 class="m-0"><i class="fas fa-draw-polygon calculator-icon"></i>Triangle Calculator</h3>
+                </div>
+                <div class="card-body">
+                    <form id="triangleForm" onsubmit="event.preventDefault(); calculateShape('triangleForm');">
+                        <div class="mb-3">
+                            <label for="sideA" class="form-label">
+                                <i class="fas fa-ruler"></i> Side A
+                            </label>
+                            <input type="number" class="form-control" id="sideA" name="sideA" step="0.01" min="0" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="sideB" class="form-label">
+                                <i class="fas fa-ruler"></i> Side B
+                            </label>
+                            <input type="number" class="form-control" id="sideB" name="sideB" step="0.01" min="0" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="sideC" class="form-label">
+                                <i class="fas fa-ruler"></i> Side C
+                            </label>
+                            <input type="number" class="form-control" id="sideC" name="sideC" step="0.01" min="0" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">
+                            Calculate
+                            <span class="spinner-border d-none" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </span>
+                        </button>
+                    </form>
+                    <div id="triangleFormResult" class="mt-4"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 
