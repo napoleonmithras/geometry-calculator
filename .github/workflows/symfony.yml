@@ -20,14 +20,12 @@ jobs:
       - uses: actions/checkout@v4
       - name: Copy .env.test.local
         run: php -r "file_exists('.env.test.local') || copy('.env.test', '.env.test.local');"
-      # Skip cache temporarily to ensure fresh install
-      # - name: Cache Composer packages
-      #   id: composer-cache
-      #   uses: actions/cache@v3
       - name: Install Dependencies
-        run: composer update --prefer-dist --no-interaction --no-scripts --no-progress
-      - name: List Vendor Bin Directory
-        run: ls -la vendor/bin
+        run: composer install --prefer-dist --no-interaction --no-scripts --no-progress
+      - name: Install PHPUnit explicitly
+        run: composer require --dev phpunit/phpunit
+      - name: List Installed Composer Packages
+        run: composer info --path
       - name: Create Database
         run: |
           mkdir -p data
@@ -35,4 +33,7 @@ jobs:
       - name: Run PHPUnit Tests
         env:
           DATABASE_URL: sqlite:///%kernel.project_dir%/data/database.sqlite
-        run: vendor/bin/phpunit || ./vendor/phpunit/phpunit/phpunit
+        run: |
+          if [ -f vendor/bin/phpunit ]; then vendor/bin/phpunit;
+          elif [ -f ./vendor/phpunit/phpunit/phpunit ]; then ./vendor/phpunit/phpunit/phpunit;
+          else echo "PHPUnit not found"; exit 1; fi
