@@ -14,15 +14,20 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Set up PHP
-        uses: shivammathur/setup-php@2cb9b829437ee246e9b3cac53555a39208ca6d28
+        uses: shivammathur/setup-php@v2
         with:
           php-version: '8.2'
       - uses: actions/checkout@v4
       - name: Copy .env.test.local
         run: php -r "file_exists('.env.test.local') || copy('.env.test', '.env.test.local');"
-      # Skip caching temporarily to ensure a fresh install
+      # Skip cache temporarily to ensure fresh install
+      # - name: Cache Composer packages
+      #   id: composer-cache
+      #   uses: actions/cache@v3
       - name: Install Dependencies
-        run: composer install --prefer-dist --no-interaction --no-scripts --no-progress
+        run: composer update --prefer-dist --no-interaction --no-scripts --no-progress
+      - name: List Vendor Bin Directory
+        run: ls -la vendor/bin
       - name: Create Database
         run: |
           mkdir -p data
@@ -30,5 +35,4 @@ jobs:
       - name: Run PHPUnit Tests
         env:
           DATABASE_URL: sqlite:///%kernel.project_dir%/data/database.sqlite
-        # Try default path first
         run: vendor/bin/phpunit || ./vendor/phpunit/phpunit/phpunit
