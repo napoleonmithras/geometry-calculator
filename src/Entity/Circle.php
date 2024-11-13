@@ -29,4 +29,9 @@ class Circle implements ShapeInterface
     {
         return $this->radius;
     }
+
+    public function getDiameter(): float
+    {
+        return $this->radius * 2;
+    }
 }

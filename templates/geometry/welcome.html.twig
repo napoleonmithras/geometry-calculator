@@ -69,6 +69,57 @@
             loadingSpinner.classList.add('d-none');
         }
     }
+
+    async function calculateCombined() {
+        const circleForm = document.getElementById('circleForm');
+        const triangleForm = document.getElementById('triangleForm');
+        const combinedResultDiv = document.getElementById('combinedResult');
+        
+        const radius = circleForm.radius.value;
+        const a = triangleForm.sideA.value;
+        const b = triangleForm.sideB.value;
+        const c = triangleForm.sideC.value;
+
+        if (!radius || !a || !b || !c) {
+            combinedResultDiv.innerHTML = `
+                <div class="alert alert-warning shadow-sm">
+                    <i class="fas fa-exclamation-circle"></i>
+                    Please fill in both shapes' measurements first.
+                </div>
+            `;
+            return;
+        }
+
+        try {
+            const response = await fetch(`/combined/${radius}/${a}/${b}/${c}`);
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            const data = await response.json();
+            
+            combinedResultDiv.innerHTML = `
+                <div class="alert alert-info shadow-sm">
+                    <h4 class="alert-heading"><i class="fas fa-calculator"></i> Combined Results</h4>
+                    <div class="result-item">
+                        <i class="fas fa-plus-square"></i>
+                        <span>Total Area: ${data.totalArea}</span>
+                    </div>
+                    <div class="result-item">
+                        <i class="fas fa-ruler-horizontal"></i>
+                        <span>Total Diameter: ${data.totalDiameter}</span>
+                    </div>
+                </div>
+            `;
+        } catch (error) {
+            console.error('Error:', error);
+            combinedResultDiv.innerHTML = `
+                <div class="alert alert-danger shadow-sm">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    Error calculating combined values.
+                </div>
+            `;
+        }
+    }
 </script>
 <style>
     .result-item {
@@ -158,6 +209,22 @@
                         </button>
                     </form>
                     <div id="triangleFormResult" class="mt-4"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="m-0"><i class="fas fa-object-group calculator-icon"></i>Combined Calculations</h3>
+                </div>
+                <div class="card-body">
+                    <button onclick="calculateCombined()" class="btn btn-primary">
+                        Calculate Combined Results
+                    </button>
+                    <div id="combinedResult" class="mt-4"></div>
                 </div>
             </div>
         </div>

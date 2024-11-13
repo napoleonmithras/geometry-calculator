@@ -91,4 +91,25 @@ class GeometryController extends AbstractController
             ], 400);
         }
     }
+
+    #[Route('/combined/{radius}/{a}/{b}/{c}', name: 'calculate_combined', methods: ['GET'])]
+    public function calculateCombined(float $radius, float $a, float $b, float $c): JsonResponse
+    {
+        try {
+            $circle = new Circle($radius);
+            $triangle = new Triangle($a, $b, $c);
+
+            $totalArea = $this->calculator->sumAreas($circle, $triangle);
+            $totalDiameter = $this->calculator->sumDiameters($circle, $triangle);
+
+            return new JsonResponse([
+                'totalArea' => round($totalArea, 2),
+                'totalDiameter' => round($totalDiameter, 2)
+            ]);
+        } catch (\Throwable $e) {
+            return new JsonResponse([
+                'error' => 'Error calculating combined values: ' . $e->getMessage()
+            ], 400);
+        }
+    }
 }
