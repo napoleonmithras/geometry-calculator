@@ -21,7 +21,7 @@ services:
             - '../src/Kernel.php'
 
     App\Service\GeometryCalculator:
-        autowire: true
+        public: true
 
     # Alias for backward compatibility if needed
     app.geometry_calculator:

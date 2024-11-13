@@ -19,6 +19,14 @@ class Triangle implements ShapeInterface
      */
     public function __construct(float $a, float $b, float $c)
     {
+        if ($a <= 0 || $b <= 0 || $c <= 0) {
+            throw new \InvalidArgumentException('All sides must be positive');
+        }
+        
+        if (!$this->isValidTriangle($a, $b, $c)) {
+            throw new \InvalidArgumentException('Invalid triangle sides');
+        }
+
         $this->a = $a;
         $this->b = $b;
         $this->c = $c;
@@ -29,9 +37,9 @@ class Triangle implements ShapeInterface
      * 
      * @return float The surface area of the triangle.
      */
-    public function calculateSurface(): float
+    public function getSurface(): float
     {
-        $s = ($this->a + $this->b + $this->c) / 2; // Semi-perimeter of the triangle
+        $s = $this->getCircumference() / 2;
         return sqrt($s * ($s - $this->a) * ($s - $this->b) * ($s - $this->c));
     }
 
@@ -40,7 +48,7 @@ class Triangle implements ShapeInterface
      * 
      * @return float The circumference of the triangle.
      */
-    public function calculateCircumference(): float
+    public function getCircumference(): float
     {
         return $this->a + $this->b + $this->c; // Sum of all sides
     }
@@ -62,7 +70,7 @@ class Triangle implements ShapeInterface
      */
     public function getArea(): float
     {
-        return $this->calculateSurface(); // Delegates to calculateSurface for area calculation
+        return $this->getSurface(); // Delegates to getSurface for area calculation
     }
 
     /**
@@ -88,5 +96,10 @@ class Triangle implements ShapeInterface
     public function getSideC(): float
     {
         return $this->c;
+    }
+
+    private function isValidTriangle(float $a, float $b, float $c): bool
+    {
+        return ($a + $b > $c) && ($b + $c > $a) && ($a + $c > $b);
     }
 }

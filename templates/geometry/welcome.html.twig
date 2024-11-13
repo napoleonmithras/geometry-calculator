@@ -26,6 +26,9 @@
 
         try {
             const response = await fetch(url);
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
             const data = await response.json();
             
             resultDiv.innerHTML = `
@@ -54,10 +57,11 @@
                 </div>
             `;
         } catch (error) {
+            console.error('Error:', error);
             resultDiv.innerHTML = `
                 <div class="alert alert-danger shadow-sm">
                     <i class="fas fa-exclamation-triangle"></i>
-                    Error calculating shape properties: ${error.message}
+                    Invalid input or calculation error. Please check your values.
                 </div>
             `;
         } finally {

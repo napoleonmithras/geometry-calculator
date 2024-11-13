@@ -13,19 +13,13 @@ class Circle implements ShapeInterface
     }
 
     // Method to calculate the surface area of the circle
-    public function calculateSurface(): float
+    public function getSurface(): float
     {
         return pi() * pow($this->radius, 2);
     }
 
-    // Method to calculate the diameter of the circle
-    public function calculateDiameter(): float
-    {
-        return 2 * $this->radius;
-    }
-
     // Method to calculate the circumference of the circle
-    public function calculateCircumference(): float
+    public function getCircumference(): float
     {
         return 2 * pi() * $this->radius;
     }
@@ -34,15 +28,5 @@ class Circle implements ShapeInterface
     public function getRadius(): float
     {
         return $this->radius;
-    }
-
-    public function getDiameter(): float
-    {
-        return $this->radius * 2;
-    }
-
-    public function getArea(): float
-    {
-        return $this->calculateSurface();
     }
 }

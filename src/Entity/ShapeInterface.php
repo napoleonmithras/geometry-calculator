@@ -11,12 +11,12 @@ interface ShapeInterface
      * 
      * @return float The area of the shape.
      */
-    public function getArea(): float;
+    public function getSurface(): float;
 
     /**
-     * Method to get the diameter of the shape.
+     * Method to get the circumference of the shape.
      * 
-     * @return float The diameter of the shape.
+     * @return float The circumference of the shape.
      */
-    public function getDiameter(): float;
+    public function getCircumference(): float;
 }
