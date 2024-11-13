@@ -41,25 +41,23 @@ class GeometryController extends AbstractController
 
             $circle = new Circle($radius);
             
-            // Calculate values separately to catch potential calculation errors
+            // Quick sanity check before returning results
             $surface = $circle->getSurface();
             $circumference = $circle->getCircumference();
             
             if (!is_finite($surface) || !is_finite($circumference)) {
-                throw new \RuntimeException('Calculation resulted in invalid values');
+                throw new \RuntimeException('Got some wonky values from the calculation');
             }
             
-            $result = [
+            return new JsonResponse([
                 'surface' => round($surface, 2),
                 'circumference' => round($circumference, 2),
                 'radius' => round($radius, 2)
-            ];
+            ]);
             
-            return new JsonResponse($result);
-            
-        } catch (\Throwable $e) {  // Changed to \Throwable to catch all possible errors
+        } catch (\Throwable $e) {
             return new JsonResponse([
-                'error' => 'Calculation error: ' . $e->getMessage()
+                'error' => 'Oops! ' . $e->getMessage()
             ], 400);
         }
     }
@@ -70,11 +68,12 @@ class GeometryController extends AbstractController
         try {
             $triangle = new Triangle($a, $b, $c);
             
+            // Let the calculator do its thing
             $surface = $this->calculator->calculateTriangleArea($triangle);
             $circumference = $this->calculator->calculateTrianglePerimeter($triangle);
             
             if (!is_finite($surface) || !is_finite($circumference)) {
-                throw new \RuntimeException('Calculation resulted in invalid values');
+                throw new \RuntimeException('Math went wrong somewhere');
             }
             
             return new JsonResponse([
@@ -88,7 +87,7 @@ class GeometryController extends AbstractController
             
         } catch (\Throwable $e) {
             return new JsonResponse([
-                'error' => 'Calculation error: ' . $e->getMessage()
+                'error' => 'Something went wrong: ' . $e->getMessage()
             ], 400);
         }
     }
