@@ -31,16 +31,16 @@ class GeometryController extends AbstractController
         ]);
     }
 
-    #[Route('/circle/{radius}', name: 'calculate_circle', methods: ['GET'])]
-    public function calculateCircle(float $radius): JsonResponse
+    #[Route('/circle/{radius}', name: 'calculate_circle')]
+    public function circle(float $radius): Response
     {
         $circle = new Circle($radius);
-        
-        return new JsonResponse([
-            'type' => 'circle',
-            'radius' => $radius,
-            'surface' => round($this->calculator->calculateCircleArea($circle), 2),
-            'circumference' => round($this->calculator->calculateCirclePerimeter($circle), 2),
+        $area = $this->calculator->calculateCircleArea($circle);
+        $circumference = $this->calculator->calculateCirclePerimeter($circle);
+
+        return $this->render('geometry/circle.html.twig', [
+            'area' => $area,
+            'circumference' => $circumference,
         ]);
     }
 

@@ -1,0 +1,9 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <h1>Circle Calculations</h1>
+    <div class="result">
+        <p class="area">Area: {{ area|number_format(2) }} square units</p>
+        <p class="circumference">Circumference: {{ circumference|number_format(2) }} units</p>
+    </div>
+{% endblock %} 
