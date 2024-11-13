@@ -1,0 +1,39 @@
+name: Symfony
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+permissions:
+  contents: read
+
+jobs:
+  symfony-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+      - uses: actions/checkout@v4
+      - name: Copy .env.test.local
+        run: php -r "file_exists('.env.test.local') || copy('.env.test', '.env.test.local');"
+      - name: Install Dependencies
+        run: composer install --prefer-dist --no-interaction --no-scripts --no-progress
+      - name: Install PHPUnit explicitly
+        run: composer require --dev phpunit/phpunit
+      - name: List Installed Composer Packages
+        run: composer info --path
+      - name: Create Database
+        run: |
+          mkdir -p data
+          touch data/database.sqlite
+      - name: Run PHPUnit Tests
+        env:
+          DATABASE_URL: sqlite:///%kernel.project_dir%/data/database.sqlite
+        run: |
+          if [ -f vendor/bin/phpunit ]; then vendor/bin/phpunit;
+          elif [ -f ./vendor/phpunit/phpunit/phpunit ]; then ./vendor/phpunit/phpunit/phpunit;
+          else echo "PHPUnit not found"; exit 1; fi
