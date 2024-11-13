@@ -55,5 +55,5 @@ jobs:
       - name: Execute tests via PHPUnit
         env:
           DATABASE_URL: mysql://root:password@127.0.0.1:3306/symfony_test
-          APP_SECRET: ${{ secrets.APP_SECRET }}
+          APP_SECRET: ${{ secrets.SYMFONY_APP_SECRET }}
         run: vendor/bin/phpunit
