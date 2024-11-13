@@ -1,4 +1,6 @@
 {
+    "name": "napoleonmithras/geometry-calculator",
+    "description": "A Symfony geometry calculator application",
     "type": "project",
     "license": "proprietary",
     "minimum-stability": "stable",
